@@ -183,11 +183,9 @@ function ZoneRasterLayer({ points, colorForWi, fillOpacity = 0.25 }) {
   const cells = useMemo(() => {
     const raster = buildRasterFromPoints(points);
     if (!raster) return [];
-    
-    /* const { lats, lons, dLat, dLon } = raster; */
 
-    // 変更後
-    const { lats: _lats, lons: _lons, dLat: _dLat, dLon: _dLon } = raster;
+    const { dLat, dLon } = raster; 
+
 
     const halfLat = dLat / 2;
     const halfLon = dLon / 2;
