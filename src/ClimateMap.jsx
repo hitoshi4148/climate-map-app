@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
-import { MapContainer, TileLayer, Polyline,  Polygon, Rectangle, Tooltip as LeafletTooltip,  useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline,  /* Polygon, */ Rectangle, /*Tooltip as LeafletTooltip,*/  useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { contours } from 'd3-contour';
 
