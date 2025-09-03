@@ -36,3 +36,61 @@
     transform: rotate(360deg);
   }
 }
+
+/* フッターのカスタムスタイル */
+.footer-text-dark {
+  color: #000000 !important;
+  font-weight: bold !important;
+}
+
+.footer-text-gray {
+  color: #1f2937 !important;
+  font-weight: bold !important;
+}
+
+/* フッターの強制スタイル - 最高優先度 */
+#footer-main-link {
+  color: #000000 !important;
+  font-weight: bold !important;
+}
+
+#footer-main-link-text {
+  color: #2563eb !important;
+  text-decoration: underline !important;
+}
+
+#footer-other-links {
+  color: #1f2937 !important;
+  font-weight: bold !important;
+}
+
+#footer-other-links a {
+  color: #16a34a !important;
+  text-decoration: underline !important;
+}
+
+#footer-other-links a:last-child {
+  color: #dc2626 !important;
+  text-decoration: underline !important;
+}
+
+/* さらに強力なセレクター */
+footer #footer-main-link {
+  color: #000000 !important;
+}
+
+footer #footer-main-link-text {
+  color: #2563eb !important;
+}
+
+footer #footer-other-links {
+  color: #1f2937 !important;
+}
+
+footer #footer-other-links a {
+  color: #16a34a !important;
+}
+
+footer #footer-other-links a:last-child {
+  color: #dc2626 !important;
+}

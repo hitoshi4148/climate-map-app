@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
-import { MapContainer, TileLayer, Polyline,  /* Polygon, */ Rectangle, /*Tooltip as LeafletTooltip,*/  useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, Polygon, Rectangle, Tooltip as LeafletTooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { contours } from 'd3-contour';
 
@@ -45,7 +45,7 @@ function chaikinSmooth(latlngs, iterations = 4) {
   return pts;
 }
 
-const YEARS = [2022, 2023, 2024];
+const YEARS = [1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
 
 function computeWi(lat, lon, year) {
   const base = 120 + (lat - 25) * 10 + (lon - 138) * 0.8 + (year - 2022) * 5;
@@ -183,10 +183,7 @@ function ZoneRasterLayer({ points, colorForWi, fillOpacity = 0.25 }) {
   const cells = useMemo(() => {
     const raster = buildRasterFromPoints(points);
     if (!raster) return [];
-
-    const { dLat, dLon } = raster; 
-
-
+    const { lats, lons, dLat, dLon } = raster;
     const halfLat = dLat / 2;
     const halfLon = dLon / 2;
     return points.map(p => {
@@ -209,10 +206,57 @@ function ZoneRasterLayer({ points, colorForWi, fillOpacity = 0.25 }) {
 }
 
 const ClimateMap = () => {
+  // デバッグ用：シンプルなテスト表示
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-red-500 text-white p-8 text-center text-2xl">
+        テスト表示 - ClimateMapコンポーネントが実行されています
+      </div>
+      <footer className="bg-gray-200 border-t-2 border-gray-300 mt-8">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="text-center space-y-4">
+            <div className="text-lg font-medium text-gray-700">
+              <a 
+                href="https://hitoshiyoshinobu.wixsite.com/website" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 underline"
+              >
+                グロウアンドプログレス
+              </a>
+            </div>
+            <div className="text-sm text-gray-600 space-y-2">
+              <div>
+                <a 
+                  href="https://turfmap.onrender.com/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-green-600 hover:text-green-800 underline"
+                >
+                  グリーンキーパーのための積算温度追跡マップ
+                </a>
+              </div>
+              <div>
+                <a 
+                  href="https://turf-disease-app-5lcrgklvb8nazhamvbgwej.streamlit.app/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-red-600 hover:text-red-800 underline"
+                >
+                  芝生病害分類ＡＩ
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+
   const [currentYear, setCurrentYear] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [climateData, setClimateData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -290,12 +334,63 @@ const ClimateMap = () => {
     "VI": { color: "#7c2d12", label: "熱帯", range: "> 240" }
   }), []);
 
-  const currentData = useMemo(() => (climateData?.data[currentYear.toString()] || []), [climateData, currentYear]);
+  const currentData = useMemo(() => {
+    if (!climateData) return [];
+    if (!currentYear) return [];
+    return climateData.data[currentYear.toString()] || [];
+  }, [climateData, currentYear]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="text-xl text-gray-600">データ読み込み中...</div>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <h1 className="text-2xl font-bold text-gray-900">温暖化可視化アニメ - 温量指数による適応芝種の変化</h1>
+            <p className="text-sm text-gray-600 mt-1">データ読み込み中...</p>
+          </div>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-xl text-gray-600">データ読み込み中...</div>
+        </div>
+        {/* フッター */}
+        <footer className="bg-gray-200 border-t-2 border-gray-300 mt-8">
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="text-center space-y-4">
+              <div className="text-lg font-medium text-gray-700">
+                <a 
+                  href="https://hitoshiyoshinobu.wixsite.com/website" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  グロウアンドプログレス
+                </a>
+              </div>
+              <div className="text-sm text-gray-600 space-y-2">
+                <div>
+                  <a 
+                    href="https://turfmap.onrender.com/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-green-600 hover:text-green-800 underline"
+                  >
+                    グリーンキーパーのための積算温度追跡マップ
+                  </a>
+                </div>
+                <div>
+                  <a 
+                    href="https://turf-disease-app-5lcrgklvb8nazhamvbgwej.streamlit.app/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-red-600 hover:text-red-800 underline"
+                  >
+                    芝生病害分類ＡＩ
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
     );
   }
@@ -327,7 +422,7 @@ const ClimateMap = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold text-gray-900">温暖化可視化アニメ - 温量指数による適応芝種の変化</h1>
@@ -335,12 +430,12 @@ const ClimateMap = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3">
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-4xl font-semibold text-gray-900">{currentYear}年</h2>
+                <h2 className="text-4xl font-semibold text-gray-900">{currentYear || '読み込み中...'}年</h2>
                 <div className="flex items-center space-x-2">
                   <button onClick={handlePrevYear} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"><SkipBack size={16} /></button>
                   <button onClick={handlePlayPause} className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors">{isPlaying ? <Pause size={16} /> : <Play size={16} />}</button>
@@ -348,8 +443,8 @@ const ClimateMap = () => {
                 </div>
               </div>
 
-              <div className="relative rounded-lg h-[900px] overflow-hidden border">
-                <MapContainer center={[35.6762, 139.6503]} zoom={8} className="h-full w-full" preferCanvas={true}>
+              <div className="relative rounded-lg h-[600px] overflow-hidden border">
+                <MapContainer center={[35.6762, 139.6503]} zoom={9} className="h-full w-full" preferCanvas={true}>
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -361,7 +456,7 @@ const ClimateMap = () => {
                   <ContourLayer points={currentData} thresholds={ZONE_BOUNDARIES} colorForThreshold={colorForThreshold} />
                 </MapContainer>
                 <div className="absolute top-4 left-4 bg-white/90 rounded-lg px-3 py-2 shadow-sm">
-                  <div className="text-2xl font-bold text-gray-900">{currentYear}</div>
+                  <div className="text-2xl font-bold text-gray-900">{currentYear || '読み込み中...'}</div>
                 </div>
               </div>
             </div>
@@ -422,38 +517,32 @@ const ClimateMap = () => {
         </div>
       </div>
 
+      {/* デバッグ用テスト要素 */}
+      <div className="bg-red-500 text-white p-4 text-center">
+        フッター表示テスト - この要素が見えていればメインコンポーネントが実行されています
+      </div>
+      
       {/* フッター */}
       <footer className="bg-gray-200 border-t-2 border-gray-300 mt-8">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center space-y-4">
-            <div style={{ 
-              fontSize: '18px', 
-              fontWeight: 'bold',
-              color: '#000000 !important'
-            }}>
+            <div className="text-lg font-medium text-gray-700">
               <a 
                 href="https://hitoshiyoshinobu.wixsite.com/website" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                style={{ 
-                  textDecoration: 'underline',
-                  color: '#2563eb !important'
-                }}
+                className="text-blue-600 hover:text-blue-800 underline"
               >
                 グロウアンドプログレス
               </a>
             </div>
-            <div style={{ 
-              fontSize: '14px', 
-              fontWeight: 'bold',
-              color: '#1f2937 !important'
-            }}>
+            <div className="text-sm text-gray-600 space-y-2">
               <div>
                 <a 
                   href="https://turfmap.onrender.com/" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  style={{ color: '#16a34a !important', textDecoration: 'underline' }}
+                  className="text-green-600 hover:text-green-800 underline"
                 >
                   グリーンキーパーのための積算温度追跡マップ
                 </a>
@@ -463,7 +552,7 @@ const ClimateMap = () => {
                   href="https://turf-disease-app-5lcrgklvb8nazhamvbgwej.streamlit.app/" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  style={{ color: '#dc2626 !important', textDecoration: 'underline' }}
+                  className="text-red-600 hover:text-red-800 underline"
                 >
                   芝生病害分類ＡＩ
                 </a>
