@@ -7,6 +7,22 @@ import { contours } from 'd3-contour';
 // Zone boundaries (WI): I<15, II 15-45, III 45-85, IV 85-180, V 180-240, VI>=240
 const ZONE_BOUNDARIES = [15, 45, 85, 180, 240];
 
+const TurfToolsPrBanner = () => (
+  <a
+    href="https://www.turf-tools.jp/services-4"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-block shrink-0 mb-3 rounded outline-offset-2"
+  >
+    <img
+      src={`${process.env.PUBLIC_URL}/banner_pr_size1.png`}
+      alt="芝管理のプロにPRしませんか？農薬・資材・機械メーカー様向け（詳細はターフツールズ）"
+      className="block h-auto w-auto max-w-none"
+      decoding="async"
+    />
+  </a>
+);
+
 const FitBoundsToPoints = ({ points }) => {
   const map = useMap();
   useEffect(() => {
@@ -330,6 +346,7 @@ const ClimateMap = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
+          <TurfToolsPrBanner />
           <h1 className="text-2xl font-bold text-gray-900">温暖化可視化アニメ - 温量指数による適応芝種の変化</h1>
           <p className="text-sm text-gray-600 mt-1">{climateData?.metadata.region} | {climateData?.metadata.years_range} | 解像度 {climateData?.metadata.resolution}°</p>
         </div>
