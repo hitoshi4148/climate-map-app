@@ -8,19 +8,56 @@ import { contours } from 'd3-contour';
 const ZONE_BOUNDARIES = [15, 45, 85, 180, 240];
 
 const TurfToolsPrBanner = () => (
-  <a
-    href="https://www.turf-tools.jp/services-4"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="inline-block shrink-0 mb-3 rounded outline-offset-2"
-  >
-    <img
-      src={`${process.env.PUBLIC_URL}/banner_pr_size1.png`}
-      alt="芝管理のプロにPRしませんか？農薬・資材・機械メーカー様向け（詳細はターフツールズ）"
-      className="block h-auto w-auto max-w-none"
-      decoding="async"
-    />
-  </a>
+  <div className="mb-3">
+    <a
+      href="https://www.turf-tools.jp/services-4"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-block shrink-0 rounded outline-offset-2"
+    >
+      <img
+        src={`${process.env.PUBLIC_URL}/banner_pr_size1.png`}
+        alt="芝管理のプロにPRしませんか？農薬・資材・機械メーカー様向け（詳細はターフツールズ）"
+        className="block h-auto w-auto max-w-none"
+        decoding="async"
+      />
+    </a>
+
+    <div className="mt-3 flex flex-row flex-wrap gap-3">
+      <a
+        href="https://www.turf-tools.jp/blog"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block rounded outline-offset-2"
+      >
+        <img
+          src={`${process.env.PUBLIC_URL}/bloglink.png`}
+          alt="芝管理技術ブログ（ターフツールズ）"
+          width={300}
+          height={100}
+          style={{ width: 300, height: 100, objectFit: 'contain' }}
+          className="block"
+          decoding="async"
+        />
+      </a>
+      <a
+        href="https://www.youtube.com/channel/UCSRU0zk4Fj1ETWqMRlJDPJQ"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block rounded outline-offset-2"
+      >
+        <img
+          src={`${process.env.PUBLIC_URL}/youtubelink.png`}
+          alt="YouTube 現場で役立つ芝管理ノウハウ（グロウアンドプログレス）"
+          width={300}
+          height={100}
+          style={{ width: 300, height: 100, objectFit: 'contain' }}
+          className="block"
+          decoding="async"
+        />
+      </a>
+    </div>
+  </div>
 );
 
 const FitBoundsToPoints = ({ points }) => {
