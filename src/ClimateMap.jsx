@@ -1,14 +1,161 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
-import { MapContainer, TileLayer, Polyline,  /* Polygon, */ Rectangle, /*Tooltip as LeafletTooltip,*/  useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, Rectangle, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { contours } from 'd3-contour';
 
 // Zone boundaries (WI): I<15, II 15-45, III 45-85, IV 85-180, V 180-240, VI>=240
 const ZONE_BOUNDARIES = [15, 45, 85, 180, 240];
 
+// 等値線の閾値は上側（暖温側）気候区分の下限。ラベル・線色と一致させる。
+function zoneLabelForThreshold(threshold) {
+  if (threshold <= 15) return { key: 'II', roman: 'Ⅱ' };
+  if (threshold <= 45) return { key: 'III', roman: 'Ⅲ' };
+  if (threshold <= 85) return { key: 'IV', roman: 'Ⅳ' };
+  if (threshold <= 180) return { key: 'V', roman: 'Ⅴ' };
+  return { key: 'VI', roman: 'Ⅵ' };
+}
+
+function polylineLength(latlngs) {
+  let sum = 0;
+  for (let i = 1; i < latlngs.length; i++) {
+    sum += Math.hypot(latlngs[i][0] - latlngs[i - 1][0], latlngs[i][1] - latlngs[i - 1][1]);
+  }
+  return sum;
+}
+
+function rasterEdgeBounds(raster) {
+  const { lats, lons, dLat, dLon } = raster;
+  const marginLat = (dLat || 0.5) * 0.55;
+  const marginLon = (dLon || 0.5) * 0.55;
+  return {
+    latMin: lats[0],
+    latMax: lats[lats.length - 1],
+    lonMin: lons[0],
+    lonMax: lons[lons.length - 1],
+    marginLat,
+    marginLon,
+  };
+}
+
+function isOnDrawingRegionEdge(lat, lon, bounds) {
+  return (
+    lat <= bounds.latMin + bounds.marginLat ||
+    lat >= bounds.latMax - bounds.marginLat ||
+    lon <= bounds.lonMin + bounds.marginLon ||
+    lon >= bounds.lonMax - bounds.marginLon
+  );
+}
+
+function interiorPolylineSegments(latlngs, bounds) {
+  const segments = [];
+  let current = [];
+  for (const [lat, lon] of latlngs) {
+    if (isOnDrawingRegionEdge(lat, lon, bounds)) {
+      if (current.length >= 2) segments.push(current);
+      current = [];
+    } else {
+      current.push([lat, lon]);
+    }
+  }
+  if (current.length >= 2) segments.push(current);
+  return segments;
+}
+
+const MIN_SEGMENT_LENGTH_FOR_LABEL = 3.0;
+const MIN_LABEL_SPACING = 6.0;
+const MAX_LABELS_PER_ROMAN = 3;
+
+function labelCountForSegmentLength(length) {
+  if (length < MIN_SEGMENT_LENGTH_FOR_LABEL) return 0;
+  if (length >= 12) return 2;
+  return 1;
+}
+
+function dedupeZoneLabels(markers, minDist = MIN_LABEL_SPACING, maxPerRoman = MAX_LABELS_PER_ROMAN) {
+  const kept = [];
+  const countByRoman = {};
+  for (const marker of markers) {
+    const romanCount = countByRoman[marker.roman] || 0;
+    if (romanCount >= maxPerRoman) continue;
+    const tooClose = kept.some((existing) => (
+      existing.roman === marker.roman &&
+      Math.hypot(
+        existing.position[0] - marker.position[0],
+        existing.position[1] - marker.position[1],
+      ) < minDist
+    ));
+    if (!tooClose) {
+      kept.push(marker);
+      countByRoman[marker.roman] = romanCount + 1;
+    }
+  }
+  return kept;
+}
+
+function labelPositionsAlongLine(latlngs, count) {
+  if (!latlngs?.length) return [];
+  if (latlngs.length === 1 || count <= 1) return [latlngs[Math.floor(latlngs.length / 2)]];
+  const cum = [0];
+  for (let i = 1; i < latlngs.length; i++) {
+    cum.push(cum[i - 1] + Math.hypot(latlngs[i][0] - latlngs[i - 1][0], latlngs[i][1] - latlngs[i - 1][1]));
+  }
+  const total = cum[cum.length - 1];
+  if (total === 0) return [latlngs[0]];
+  const positions = [];
+  for (let k = 1; k <= count; k++) {
+    const target = (total * k) / (count + 1);
+    let i = 1;
+    while (i < cum.length && cum[i] < target) i++;
+    const segStart = cum[i - 1];
+    const segLen = cum[i] - segStart || 1;
+    const t = (target - segStart) / segLen;
+    const [lat1, lon1] = latlngs[i - 1];
+    const [lat2, lon2] = latlngs[i];
+    positions.push([lat1 + (lat2 - lat1) * t, lon1 + (lon2 - lon1) * t]);
+  }
+  return positions;
+}
+
+function createZoneLabelIcon(roman, color) {
+  return L.divIcon({
+    className: 'zone-contour-label-icon',
+    html: `<span class="zone-contour-label-text" style="color:${color}">${roman}</span>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
+  });
+}
+const APP_VERSION = '1.1.0';
+const APP_TITLE = '芝しごと・温量指数気候区分マップ';
+
+function darkenHex(hex, amount = 0.55) {
+  const n = parseInt(hex.replace('#', ''), 16);
+  const r = Math.max(0, Math.round(((n >> 16) & 255) * (1 - amount)));
+  const g = Math.max(0, Math.round(((n >> 8) & 255) * (1 - amount)));
+  const b = Math.max(0, Math.round((n & 255) * (1 - amount)));
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+function formatWiRange(info) {
+  const suffix = info.rangeSuffix || '';
+  return `温量指数 ${info.range}${suffix}`;
+}
+
+function grassLegendHtml(zone, zoneColor) {
+  const primary = (text) => `<span style="color:${darkenHex(zoneColor)};font-weight:700">${text}</span>`;
+  const legends = {
+    I: `${primary('◎ファインフェスク・ケンタッキーブルーグラス・ベントグラス・トールフェスク')}　〇ライグラス`,
+    II: `${primary('◎ファインフェスク・ケンタッキーブルーグラス・ベントグラス・ライグラス類・トールフェスク')}　〇ノシバ`,
+    III: `${primary('◎ケンタッキーブルーグラス・ベントグラス・ライグラス類・トールフェスク')}　〇ファインフェスク・コウライシバ　△センチピードグラス・バミューダグラス`,
+    IV: `${primary('◎トールフェスク・ノシバ・コウライシバ・センチピードグラス・バミューダグラス')}　〇ケンタッキーブルーグラス・ベントグラス・ライグラス類・バヒアグラス　△ファインフェスク・セントオーガチングラス・シーショアパスパラム・カーペットグラス`,
+    V: `${primary('◎ノシバ・コウライシバ・センチピードグラス・バミューダグラス・バヒアグラス')}　〇トールフェスク・セントオーガスチングラス・シーショアパスパラム・カーペットグラス　△ケンタッキーブルーグラス・ベントグラス・ライグラス類・トールフェスク`,
+    VI: `${primary('◎ノシバ・コウライシバ・センチピードグラス・バミューダグラス・バヒアグラス・セントオーガスチングラス・シーショアパスパラム・カーペットグラス')}　△ベントグラス・ライグラス類・トールフェスク`,
+  };
+  return legends[zone] || '';
+}
+
 const TurfToolsPrBanner = () => (
-  <div className="mb-3">
+  <div className="mb-3 flex flex-col items-center">
     <a
       href="https://www.turf-tools.jp/services-4"
       target="_blank"
@@ -23,7 +170,7 @@ const TurfToolsPrBanner = () => (
       />
     </a>
 
-    <div className="mt-3 flex flex-row flex-wrap gap-3">
+    <div className="mt-3 flex flex-row flex-wrap justify-center gap-3">
       <a
         href="https://www.turf-tools.jp/blog"
         target="_blank"
@@ -98,7 +245,7 @@ function chaikinSmooth(latlngs, iterations = 4) {
   return pts;
 }
 
-const YEARS = [2022, 2023, 2024];
+const YEARS = Array.from({ length: 2025 - 1981 + 1 }, (_, i) => 1981 + i);
 
 function computeWi(lat, lon, year) {
   const base = 120 + (lat - 25) * 10 + (lon - 138) * 0.8 + (year - 2022) * 5;
@@ -167,12 +314,12 @@ function buildRasterFromPoints(points) {
   return { values, width, height, lats, lons, dLat, dLon };
 }
 
-function ContourLayer({ points, thresholds, colorForThreshold }) {
-  const { polylines } = useMemo(() => {
+function ContourLayer({ points, thresholds, colorForThreshold, showZoneLabels, climateZones }) {
+  const { polylines, labels } = useMemo(() => {
     const raster = buildRasterFromPoints(points);
-    if (!raster) return { polylines: [] };
+    if (!raster) return { polylines: [], labels: [] };
     const { values, width, height, lats, lons } = raster;
-    if (width < 2 || height < 2) return { polylines: [] };
+    if (width < 2 || height < 2) return { polylines: [], labels: [] };
 
     const gen = contours().size([width, height]).thresholds(thresholds);
     const cs = gen(values);
@@ -216,8 +363,36 @@ function ContourLayer({ points, thresholds, colorForThreshold }) {
         }
       }
     }
-    return { polylines: results };
-  }, [points, thresholds]);
+    const labelMarkers = [];
+    if (showZoneLabels) {
+      const edgeBounds = rasterEdgeBounds(raster);
+      results.forEach((pl, plIdx) => {
+        const { key, roman } = zoneLabelForThreshold(pl.value);
+        const color = climateZones[key]?.color;
+        if (!color) return;
+        const segments = interiorPolylineSegments(pl.latlngs, edgeBounds);
+        if (segments.length === 0) return;
+        const longest = segments.reduce(
+          (best, seg) => (polylineLength(seg) > polylineLength(best) ? seg : best),
+          segments[0],
+        );
+        const length = polylineLength(longest);
+        const count = labelCountForSegmentLength(length);
+        if (count === 0) return;
+        const positions = labelPositionsAlongLine(longest, count);
+        positions.forEach((pos, posIdx) => {
+          if (isOnDrawingRegionEdge(pos[0], pos[1], edgeBounds)) return;
+          labelMarkers.push({
+            key: `${plIdx}-${posIdx}-${pl.value}`,
+            position: pos,
+            roman,
+            color,
+          });
+        });
+      });
+    }
+    return { polylines: results, labels: dedupeZoneLabels(labelMarkers) };
+  }, [points, thresholds, showZoneLabels, climateZones]);
 
   return (
     <>
@@ -226,6 +401,14 @@ function ContourLayer({ points, thresholds, colorForThreshold }) {
           key={idx}
           positions={pl.latlngs}
           pathOptions={{ color: colorForThreshold(pl.value), weight: 1.6, opacity: 0.95, lineJoin: 'round', lineCap: 'round' }}
+        />
+      ))}
+      {labels.map((lb) => (
+        <Marker
+          key={lb.key}
+          position={lb.position}
+          icon={createZoneLabelIcon(lb.roman, lb.color)}
+          interactive={false}
         />
       ))}
     </>
@@ -272,17 +455,17 @@ const ClimateMap = () => {
     let cancelled = false;
     async function loadData() {
       try {
-        const res = await fetch('/climate-grid-0.1deg.json', { cache: 'no-store' });
+        const res = await fetch('/climate-grid-0.5deg.json', { cache: 'no-store' });
         if (res.ok) {
           const json = await res.json();
           if (!cancelled) {
             const totalLen = Object.values(json?.data || {}).reduce((s, arr) => s + (Array.isArray(arr) ? arr.length : 0), 0);
             if (totalLen > 0) {
               setClimateData(json);
-              // データが読み込まれたら、利用可能な最初の年を設定
+              // データが読み込まれたら、利用可能な最新年を設定
               const availableYears = Object.keys(json.data).map(Number).sort();
               if (availableYears.length > 0) {
-                setCurrentYear(availableYears[0]);
+                setCurrentYear(availableYears[availableYears.length - 1]);
               }
               setLoading(false);
               return;
@@ -293,8 +476,8 @@ const ClimateMap = () => {
       if (!cancelled) {
         const dataset = generateGridData();
         setClimateData(dataset);
-        // フォールバックデータの場合はYEARS[0]を設定
-        setCurrentYear(YEARS[0]);
+        // フォールバックデータの場合は最新年を設定
+        setCurrentYear(YEARS[YEARS.length - 1]);
         setLoading(false);
       }
     }
@@ -338,8 +521,8 @@ const ClimateMap = () => {
     "I": { color: "#2563eb", label: "亜寒帯", range: "< 15" },
     "II": { color: "#059669", label: "冷温帯", range: "15-45" },
     "III": { color: "#65a30d", label: "中間温帯", range: "45-85" },
-    "IV": { color: "#d97706", label: "暖温帯", range: "85-180" },
-    "V": { color: "#dc2626", label: "亜熱帯", range: "180-240" },
+    "IV": { color: "#d97706", label: "暖温帯", range: "85-180", rangeSuffix: "　WOS向き" },
+    "V": { color: "#dc2626", label: "亜熱帯", range: "180-240", rangeSuffix: " WOS向き" },
     "VI": { color: "#7c2d12", label: "熱帯", range: "> 240" }
   }), []);
 
@@ -384,8 +567,18 @@ const ClimateMap = () => {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <TurfToolsPrBanner />
-          <h1 className="text-2xl font-bold text-gray-900">温暖化可視化アニメ - 温量指数による適応芝種の変化</h1>
-          <p className="text-sm text-gray-600 mt-1">{climateData?.metadata.region} | {climateData?.metadata.years_range} | 解像度 {climateData?.metadata.resolution}°</p>
+          <div className="text-center">
+            <img
+              src={`${process.env.PUBLIC_URL}/logo.png`}
+              alt="G&P 芝しごと"
+              className="mx-auto mb-2 h-16 w-auto"
+              decoding="async"
+            />
+            <h1 className="text-2xl font-bold text-gray-900">{APP_TITLE}</h1>
+            <p className="text-sm text-gray-600 mt-1">
+              v{APP_VERSION} | {climateData?.metadata.region} | {climateData?.metadata.years_range} | 解像度 {climateData?.metadata.resolution}°
+            </p>
+          </div>
         </div>
       </div>
 
@@ -412,7 +605,13 @@ const ClimateMap = () => {
                   {/* Zone semi-transparent fills */}
                   <ZoneRasterLayer points={currentData} colorForWi={colorForWi} fillOpacity={0.25} />
                   {/* Contours only at zone boundaries, colored per upper zone */}
-                  <ContourLayer points={currentData} thresholds={ZONE_BOUNDARIES} colorForThreshold={colorForThreshold} />
+                  <ContourLayer
+                    points={currentData}
+                    thresholds={ZONE_BOUNDARIES}
+                    colorForThreshold={colorForThreshold}
+                    showZoneLabels={currentYear === 2025}
+                    climateZones={climateZones}
+                  />
                 </MapContainer>
                 <div className="absolute top-4 left-4 bg-white/90 rounded-lg px-3 py-2 shadow-sm">
                   <div className="text-2xl font-bold text-gray-900">{currentYear}</div>
@@ -430,15 +629,11 @@ const ClimateMap = () => {
                     <div className="w-4 h-4 rounded-full" style={{ backgroundColor: info.color }} />
                     <div className="flex-1">
                       <div className="text-lg font-medium text-gray-900">{zone}: {info.label}</div>
-                      <div className="text-xs text-gray-500">温量指数 {info.range}</div>
-                      <div className="text-[10px] text-gray-400 mt-1" dangerouslySetInnerHTML={{
-                        __html: zone === 'I' ? '<span class="font-bold">◎ファインフェスク・ケンタッキーブルーグラス・ベントグラス・トールフェスク</span>　〇ライグラス' :
-                        zone === 'II' ? '<span class="font-bold">◎ファインフェスク・ケンタッキーブルーグラス・ベントグラス・ライグラス類・トールフェスク</span>　〇ノシバ' :
-                        zone === 'III' ? '<span class="font-bold">◎ケンタッキーブルーグラス・ベントグラス・ライグラス類・トールフェスク</span>　〇ファインフェスク・コウライシバ　△センチピードグラス・バミューダグラス' :
-                        zone === 'IV' ? '<span class="font-bold">◎トールフェスク・ノシバ・コウライシバ・センチピードグラス・バミューダグラス</span>　〇ケンタッキーブルーグラス・ベントグラス・ライグラス類・バヒアグラス　△ファインフェスク・セントオーガチングラス・シーショアパスパラム・カーペットグラス' :
-                        zone === 'V' ? '<span class="font-bold">◎ノシバ・コウライシバ・センチピードグラス・バミューダグラス・バヒアグラス</span>　〇トールフェスク・セントオーガスチングラス・シーショアパスパラム・カーペットグラス　△ケンタッキーブルーグラス・ベントグラス・ライグラス類・トールフェスク' :
-                        zone === 'VI' ? '<span class="font-bold">◎ノシバ・コウライシバ・センチピードグラス・バミューダグラス・バヒアグラス・セントオーガスチングラス・シーショアパスパラム・カーペットグラス</span>　△ベントグラス・ライグラス類・トールフェスク' : ''
-                      }} />
+                      <div className="text-xs text-gray-500">{formatWiRange(info)}</div>
+                      <div
+                        className="text-[10px] text-gray-600 mt-1"
+                        dangerouslySetInnerHTML={{ __html: grassLegendHtml(zone, info.color) }}
+                      />
                     </div>
                     <div className="text-sm font-medium text-gray-600">{zoneStats[zone] || 0}</div>
                   </div>
@@ -476,48 +671,36 @@ const ClimateMap = () => {
         </div>
       </div>
 
-      {/* フッター */}
       <footer className="bg-gray-200 border-t-2 border-gray-300 mt-8">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center space-y-4">
-            <div style={{ 
-              fontSize: '18px', 
-              fontWeight: 'bold',
-              color: '#000000 !important'
-            }}>
-              <a 
-                href="https://hitoshiyoshinobu.wixsite.com/website" 
-                target="_blank" 
+            <div className="text-lg font-medium text-gray-700">
+              <a
+                href="https://hitoshiyoshinobu.wixsite.com/website"
+                target="_blank"
                 rel="noopener noreferrer"
-                style={{ 
-                  textDecoration: 'underline',
-                  color: '#2563eb !important'
-                }}
+                className="text-blue-600 hover:text-blue-800 underline"
               >
                 グロウアンドプログレス
               </a>
             </div>
-            <div style={{ 
-              fontSize: '14px', 
-              fontWeight: 'bold',
-              color: '#1f2937 !important'
-            }}>
+            <div className="text-sm text-gray-600 space-y-2">
               <div>
-                <a 
-                  href="https://turfmap.onrender.com/" 
-                  target="_blank" 
+                <a
+                  href="https://turfmap.onrender.com/"
+                  target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: '#16a34a !important', textDecoration: 'underline' }}
+                  className="text-green-600 hover:text-green-800 underline"
                 >
                   グリーンキーパーのための積算温度追跡マップ
                 </a>
               </div>
               <div>
-                <a 
-                  href="https://turf-disease-app-5lcrgklvb8nazhamvbgwej.streamlit.app/" 
-                  target="_blank" 
+                <a
+                  href="https://turf-disease-app-5lcrgklvb8nazhamvbgwej.streamlit.app/"
+                  target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: '#dc2626 !important', textDecoration: 'underline' }}
+                  className="text-red-600 hover:text-red-800 underline"
                 >
                   芝生病害分類ＡＩ
                 </a>

@@ -1,8 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+jest.mock('./ClimateMap', () => () => (
+  <h1>芝しごと・温量指数気候区分マップ</h1>
+));
+
+test('renders climate map title', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  expect(screen.getByText(/芝しごと・温量指数気候区分マップ/i)).toBeInTheDocument();
 });
