@@ -2,9 +2,10 @@
 
 日本全国の温量指数（Warmth Index）を地図上に可視化し、**1981〜2025 年**の気候区分変化をアニメーションで確認できる Web アプリケーションです。
 
-- **バージョン**: v1.1.0
+- **バージョン**: v1.1.1
 - **リポジトリ**: [hitoshi4148/climate-map-app](https://github.com/hitoshi4148/climate-map-app)
-- **提供**: [グロウアンドプログレス](https://hitoshiyoshinobu.wixsite.com/website)
+- **本番 URL**: https://climate-map-x30t.onrender.com/
+- **提供**: [グロウアンドプログレス](https://www.turf-tools.jp/)
 
 ---
 
@@ -32,8 +33,9 @@ npm start
 
 | 確認項目 | 期待される表示 |
 |----------|----------------|
-| ページ読み込み | PR バナー・ブログ/YouTube バナー・G&P ロゴ・タイトル |
-| メタ情報行 | `v1.1.0 \| Japan_0.5deg \| 1981-2025 \| 解像度 0.5°` |
+| ページ読み込み | PR / ブログ / YouTube バナー（1 行）・タイトル |
+| メタ情報行 | `v1.1.1 \| Japan_0.5deg \| 1981-2025 \| 解像度 0.5°` |
+| フッター | 芝しごとアプリリンク・G&P ロゴ |
 | 地図 | OpenStreetMap 上に気候区分の色分け・等値線 |
 | 初期表示年 | **2025 年**（データの最新年） |
 | 2025 年のみ | 等値線上にローマ数字ラベル（Ⅱ〜Ⅵ） |
@@ -68,12 +70,11 @@ npm test
 
 ---
 
-## 主な UI 機能（v1.1.0）
+## 主な UI 機能（v1.1.1）
 
 ### ヘッダー
 
-- **PR バナー**（Turf Tools サービス紹介）・**ブログ**・**YouTube** リンクバナー（中央揃え）
-- **G&P ロゴ**（`public/logo.png`）
+- **PR / ブログ / YouTube** バナーを 1 行で縮小表示（各 高さ 76px / 最大幅 240px）
 - バージョン・リージョン・データ期間・解像度のメタ情報行
 
 ### 地図
@@ -96,6 +97,11 @@ npm test
 | VI | 熱帯 | > 240 | |
 
 - 各区分に **◎芝種** の目安を表示（区分色を 55% 暗くした色で表示）
+
+### フッター
+
+- 芝しごとアプリへのリンク（ポータル、ターフプール、楽RAC農薬ローテ、施肥設計ナビ、病害リスク予報、AI質問箱、ピンポイント天気で芝しごと、病害画像診断AI、積算温度追跡マップ、クレームサバイバル）
+- **G&P ロゴ**（`public/logo.png`）とグロウアンドプログレス（https://www.turf-tools.jp/）
 
 ---
 
@@ -156,11 +162,11 @@ climate-data-fetcher/
 │   ├── index.html               # HTML テンプレート・Google Analytics タグ
 │   ├── manifest.json            # PWA メタ情報（アプリ名・アイコン）
 │   ├── climate-grid-0.5deg.json # 気候グリッドデータ（0.5°、約 4.3 MB）
-│   ├── logo.png                 # ヘッダー用 G&P ロゴ
+│   ├── logo.png                 # フッター用 G&P ロゴ
 │   ├── logo192.png / logo512.png / favicon.ico  # アプリアイコン
-│   ├── banner_pr_size1.png      # PR バナー
-│   ├── bloglink.png             # ブログリンクバナー（表示 300×100）
-│   └── youtubelink.png          # YouTube リンクバナー（表示 300×100）
+│   ├── banner_pr_size1.png      # PR バナー（ヘッダー 1 行表示）
+│   ├── bloglink.png             # ブログリンクバナー（ヘッダー 1 行表示）
+│   └── youtubelink.png          # YouTube リンクバナー（ヘッダー 1 行表示）
 ├── src/
 │   ├── App.js                   # エントリ（ClimateMap を描画）
 │   ├── App.test.js              # タイトル表示などのスモークテスト
@@ -172,7 +178,7 @@ climate-data-fetcher/
 ├── requirements.txt             # Python 依存関係
 ├── tailwind.config.js
 ├── postcss.config.js
-└── package.json                 # v1.1.0
+└── package.json                 # v1.1.1
 ```
 
 > **Note**: 以前存在した `climate-map-app/` サブディレクトリは廃止し、ルートの `src/` に統一済みです。
@@ -307,13 +313,45 @@ npx serve -s build
 | PR バナー | https://www.turf-tools.jp/services-4 |
 | ブログバナー | https://www.turf-tools.jp/blog |
 | YouTube バナー | https://www.youtube.com/channel/UCSRU0zk4Fj1ETWqMRlJDPJQ |
-| 関連アプリ | https://turfmap.onrender.com/ |
+| 本番 URL | https://climate-map-x30t.onrender.com/ |
+| 芝しごとポータル | https://www.turf-tools.jp/portal/ |
+| ターフプール | https://turfpool.onrender.com/ |
+| 楽RAC農薬ローテ | https://www.turf-tools.jp/portal/rac/ |
+| 施肥設計ナビ | https://fertilization-design.onrender.com/ |
+| 病害リスク予報 | https://www.turf-tools.jp/portal/risk/ |
+| AI質問箱 | https://turf-advisor.onrender.com/ |
+| ピンポイント天気で芝しごと | https://www.turf-tools.jp/portal/spray/ |
+| 病害画像診断AI | https://www.turf-tools.jp/portal/diagnosis/ |
+| 積算温度追跡マップ | https://turfmap.onrender.com/ |
+| クレームサバイバル | https://claim-survival.onrender.com/ |
+
+---
+
+## デプロイ
+
+Render.com の **Static Site** として公開しています。
+
+| 項目 | 値 |
+|------|-----|
+| URL | https://climate-map-x30t.onrender.com/ |
+| Build Command | `npm install && npm run build` |
+| Publish Directory | `build` |
+
+`onrender.com` のサブドメインはサービス作成時に決まるため、同 URL を維持するには **Name を `climate-map-x30t` にして新規作成**します。既存サービスの Name 変更では URL は変わりません。
 
 ---
 
 ## 変更履歴
 
-### v1.1.0（現行）
+### v1.1.1（現行）
+
+| カテゴリ | 内容 |
+|----------|------|
+| ヘッダー | PR / ブログ / YouTube バナーを縮小して 1 行表示 |
+| フッター | G&P ロゴをトップから移動、芝しごとアプリ 10 件のリンクを追加 |
+| 公開 | Render Web Service から Static Site へ移行（URL は維持） |
+
+### v1.1.0
 
 | カテゴリ | 内容 |
 |----------|------|
@@ -346,7 +384,7 @@ npx serve -s build
 
 - **Create React App（react-scripts 5.0.1）** はメンテナンスモード。React 19 との組み合わせは非公式。Vite 等への移行を検討。
 - 解像度を 0.1° に上げる場合、JSON ファイルサイズが大幅増加するため Git LFS 等の検討が必要。
-- デプロイ設定（`render.yaml` 等）は未整備。ホスティング先の手順は別途確認。
+- デプロイは Render Static Site（`climate-map-x30t.onrender.com`）。`render.yaml` によるコード管理は未整備。
 
 ---
 

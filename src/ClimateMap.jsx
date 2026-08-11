@@ -125,7 +125,7 @@ function createZoneLabelIcon(roman, color) {
     iconAnchor: [0, 0],
   });
 }
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.1.1';
 const APP_TITLE = '芝しごと・温量指数気候区分マップ';
 
 function darkenHex(hex, amount = 0.55) {
@@ -154,56 +154,57 @@ function grassLegendHtml(zone, zoneColor) {
   return legends[zone] || '';
 }
 
-const TurfToolsPrBanner = () => (
-  <div className="mb-3 flex flex-col items-center">
-    <a
-      href="https://www.turf-tools.jp/services-4"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-block shrink-0 rounded outline-offset-2"
-    >
-      <img
-        src={`${process.env.PUBLIC_URL}/banner_pr_size1.png`}
-        alt="芝管理のプロにPRしませんか？農薬・資材・機械メーカー様向け（詳細はターフツールズ）"
-        className="block h-auto w-auto max-w-none"
-        decoding="async"
-      />
-    </a>
+const BANNER_ITEMS = [
+  {
+    href: 'https://www.turf-tools.jp/services-4',
+    src: 'banner_pr_size1.png',
+    alt: '芝管理のプロにPRしませんか？農薬・資材・機械メーカー様向け（詳細はターフツールズ）',
+  },
+  {
+    href: 'https://www.turf-tools.jp/blog',
+    src: 'bloglink.png',
+    alt: '芝管理技術ブログ（ターフツールズ）',
+  },
+  {
+    href: 'https://www.youtube.com/channel/UCSRU0zk4Fj1ETWqMRlJDPJQ',
+    src: 'youtubelink.png',
+    alt: 'YouTube 現場で役立つ芝管理ノウハウ（グロウアンドプログレス）',
+  },
+];
 
-    <div className="mt-3 flex flex-row flex-wrap justify-center gap-3">
+const SHIBASHIGOTO_APP_LINKS = [
+  { label: 'ポータル', href: 'https://www.turf-tools.jp/portal/' },
+  { label: 'ターフプール', href: 'https://turfpool.onrender.com/' },
+  { label: '楽RAC農薬ローテ', href: 'https://www.turf-tools.jp/portal/rac/' },
+  { label: '施肥設計ナビ', href: 'https://fertilization-design.onrender.com/' },
+  { label: '病害リスク予報', href: 'https://www.turf-tools.jp/portal/risk/' },
+  { label: 'AI質問箱', href: 'https://turf-advisor.onrender.com/' },
+  { label: 'ピンポイント天気で芝しごと', href: 'https://www.turf-tools.jp/portal/spray/' },
+  { label: '病害画像診断AI', href: 'https://www.turf-tools.jp/portal/diagnosis/' },
+  { label: '積算温度追跡マップ', href: 'https://turfmap.onrender.com/' },
+  { label: 'クレームサバイバル', href: 'https://claim-survival.onrender.com/' },
+];
+
+const TurfToolsPrBanner = () => (
+  <div className="mx-auto mb-3 flex max-w-[720px] flex-nowrap items-center justify-center gap-2">
+    {BANNER_ITEMS.map((item) => (
       <a
-        href="https://www.turf-tools.jp/blog"
+        key={item.src}
+        href={item.href}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-block rounded outline-offset-2"
+        className="flex min-w-0 flex-1 items-center justify-center rounded outline-offset-2 hover:opacity-90"
       >
         <img
-          src={`${process.env.PUBLIC_URL}/bloglink.png`}
-          alt="芝管理技術ブログ（ターフツールズ）"
-          width={300}
-          height={100}
-          style={{ width: 300, height: 100, objectFit: 'contain' }}
-          className="block"
+          src={`${process.env.PUBLIC_URL}/${item.src}`}
+          alt={item.alt}
+          width={240}
+          height={76}
+          className="block h-[76px] w-full max-w-[240px] object-contain"
           decoding="async"
         />
       </a>
-      <a
-        href="https://www.youtube.com/channel/UCSRU0zk4Fj1ETWqMRlJDPJQ"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-block rounded outline-offset-2"
-      >
-        <img
-          src={`${process.env.PUBLIC_URL}/youtubelink.png`}
-          alt="YouTube 現場で役立つ芝管理ノウハウ（グロウアンドプログレス）"
-          width={300}
-          height={100}
-          style={{ width: 300, height: 100, objectFit: 'contain' }}
-          className="block"
-          decoding="async"
-        />
-      </a>
-    </div>
+    ))}
   </div>
 );
 
@@ -568,12 +569,6 @@ const ClimateMap = () => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <TurfToolsPrBanner />
           <div className="text-center">
-            <img
-              src={`${process.env.PUBLIC_URL}/logo.png`}
-              alt="G&P 芝しごと"
-              className="mx-auto mb-2 h-16 w-auto"
-              decoding="async"
-            />
             <h1 className="text-2xl font-bold text-gray-900">{APP_TITLE}</h1>
             <p className="text-sm text-gray-600 mt-1">
               v{APP_VERSION} | {climateData?.metadata.region} | {climateData?.metadata.years_range} | 解像度 {climateData?.metadata.resolution}°
@@ -673,39 +668,34 @@ const ClimateMap = () => {
 
       <footer className="bg-gray-200 border-t-2 border-gray-300 mt-8">
         <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="text-center space-y-4">
-            <div className="text-lg font-medium text-gray-700">
-              <a
-                href="https://hitoshiyoshinobu.wixsite.com/website"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 underline"
-              >
-                グロウアンドプログレス
-              </a>
-            </div>
-            <div className="text-sm text-gray-600 space-y-2">
-              <div>
+          <div className="text-center space-y-5">
+            <nav className="flex flex-wrap justify-center gap-x-3 gap-y-2 text-sm" aria-label="芝しごとアプリ">
+              {SHIBASHIGOTO_APP_LINKS.map((item) => (
                 <a
-                  href="https://turfmap.onrender.com/"
+                  key={item.href}
+                  href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-green-600 hover:text-green-800 underline"
+                  className="text-gray-800 underline hover:text-gray-950"
                 >
-                  グリーンキーパーのための積算温度追跡マップ
+                  {item.label}
                 </a>
-              </div>
-              <div>
-                <a
-                  href="https://turf-disease-app-5lcrgklvb8nazhamvbgwej.streamlit.app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-red-600 hover:text-red-800 underline"
-                >
-                  芝生病害分類ＡＩ
-                </a>
-              </div>
-            </div>
+              ))}
+            </nav>
+            <a
+              href="https://www.turf-tools.jp/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex flex-col items-center gap-2 text-lg font-medium text-gray-900 hover:opacity-90"
+            >
+              <img
+                src={`${process.env.PUBLIC_URL}/logo.png`}
+                alt="G&P 芝しごと"
+                className="h-16 w-auto"
+                decoding="async"
+              />
+              <span>グロウアンドプログレス</span>
+            </a>
           </div>
         </div>
       </footer>
