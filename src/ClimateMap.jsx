@@ -125,7 +125,7 @@ function createZoneLabelIcon(roman, color) {
     iconAnchor: [0, 0],
   });
 }
-const APP_VERSION = '1.1.1';
+const APP_VERSION = '1.1.2';
 const APP_TITLE = '芝しごと・温量指数気候区分マップ';
 
 function darkenHex(hex, amount = 0.55) {
@@ -174,7 +174,7 @@ const BANNER_ITEMS = [
 
 const SHIBASHIGOTO_APP_LINKS = [
   { label: 'ポータル', href: 'https://www.turf-tools.jp/portal/' },
-  { label: 'ターフプール', href: 'https://turfpool.onrender.com/' },
+  { label: 'ターフプール', href: 'https://www.turf-tools.jp/portal/turfpool/' },
   { label: '楽RAC農薬ローテ', href: 'https://www.turf-tools.jp/portal/rac/' },
   { label: '施肥設計ナビ', href: 'https://fertilization-design.onrender.com/' },
   { label: '病害リスク予報', href: 'https://www.turf-tools.jp/portal/risk/' },

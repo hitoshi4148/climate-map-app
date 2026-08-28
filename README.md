@@ -2,7 +2,7 @@
 
 日本全国の温量指数（Warmth Index）を地図上に可視化し、**1981〜2025 年**の気候区分変化をアニメーションで確認できる Web アプリケーションです。
 
-- **バージョン**: v1.1.1
+- **バージョン**: v1.1.2
 - **リポジトリ**: [hitoshi4148/climate-map-app](https://github.com/hitoshi4148/climate-map-app)
 - **本番 URL**: https://climate-map-x30t.onrender.com/
 - **提供**: [グロウアンドプログレス](https://www.turf-tools.jp/)
@@ -34,7 +34,7 @@ npm start
 | 確認項目 | 期待される表示 |
 |----------|----------------|
 | ページ読み込み | PR / ブログ / YouTube バナー（1 行）・タイトル |
-| メタ情報行 | `v1.1.1 \| Japan_0.5deg \| 1981-2025 \| 解像度 0.5°` |
+| メタ情報行 | `v1.1.2 \| Japan_0.5deg \| 1981-2025 \| 解像度 0.5°` |
 | フッター | 芝しごとアプリリンク・G&P ロゴ |
 | 地図 | OpenStreetMap 上に気候区分の色分け・等値線 |
 | 初期表示年 | **2025 年**（データの最新年） |
@@ -70,7 +70,7 @@ npm test
 
 ---
 
-## 主な UI 機能（v1.1.1）
+## 主な UI 機能（v1.1.2）
 
 ### ヘッダー
 
@@ -178,7 +178,7 @@ climate-data-fetcher/
 ├── requirements.txt             # Python 依存関係
 ├── tailwind.config.js
 ├── postcss.config.js
-└── package.json                 # v1.1.1
+└── package.json                 # v1.1.2
 ```
 
 > **Note**: 以前存在した `climate-map-app/` サブディレクトリは廃止し、ルートの `src/` に統一済みです。
@@ -315,7 +315,7 @@ npx serve -s build
 | YouTube バナー | https://www.youtube.com/channel/UCSRU0zk4Fj1ETWqMRlJDPJQ |
 | 本番 URL | https://climate-map-x30t.onrender.com/ |
 | 芝しごとポータル | https://www.turf-tools.jp/portal/ |
-| ターフプール | https://turfpool.onrender.com/ |
+| ターフプール | https://www.turf-tools.jp/portal/turfpool/ |
 | 楽RAC農薬ローテ | https://www.turf-tools.jp/portal/rac/ |
 | 施肥設計ナビ | https://fertilization-design.onrender.com/ |
 | 病害リスク予報 | https://www.turf-tools.jp/portal/risk/ |
@@ -343,7 +343,13 @@ Render.com の **Static Site** として公開しています。
 
 ## 変更履歴
 
-### v1.1.1（現行）
+### v1.1.2（現行）
+
+| カテゴリ | 内容 |
+|----------|------|
+| フッター | ターフプールへのリンクを `https://www.turf-tools.jp/portal/turfpool/` に更新 |
+
+### v1.1.1
 
 | カテゴリ | 内容 |
 |----------|------|
