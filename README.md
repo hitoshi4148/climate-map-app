@@ -2,7 +2,7 @@
 
 日本全国の温量指数（Warmth Index）を地図上に可視化し、**1981〜2025 年**の気候区分変化をアニメーションで確認できる Web アプリケーションです。
 
-- **バージョン**: v1.1.2
+- **バージョン**: v1.1.3
 - **リポジトリ**: [hitoshi4148/climate-map-app](https://github.com/hitoshi4148/climate-map-app)
 - **本番 URL**: https://climate-map-x30t.onrender.com/
 - **提供**: [グロウアンドプログレス](https://www.turf-tools.jp/)
@@ -34,7 +34,7 @@ npm start
 | 確認項目 | 期待される表示 |
 |----------|----------------|
 | ページ読み込み | PR / ブログ / YouTube バナー（1 行）・タイトル |
-| メタ情報行 | `v1.1.2 \| Japan_0.5deg \| 1981-2025 \| 解像度 0.5°` |
+| メタ情報行 | `v1.1.3 \| Japan_0.5deg \| 1981-2025 \| 解像度 0.5°` |
 | フッター | 芝しごとアプリリンク・G&P ロゴ |
 | 地図 | OpenStreetMap 上に気候区分の色分け・等値線 |
 | 初期表示年 | **2025 年**（データの最新年） |
@@ -70,7 +70,7 @@ npm test
 
 ---
 
-## 主な UI 機能（v1.1.2）
+## 主な UI 機能（v1.1.3）
 
 ### ヘッダー
 
@@ -100,7 +100,7 @@ npm test
 
 ### フッター
 
-- 芝しごとアプリへのリンク（ポータル、ターフプール、楽RAC農薬ローテ、施肥設計ナビ、病害リスク予報、AI質問箱、ピンポイント天気で芝しごと、病害画像診断AI、積算温度追跡マップ、クレームサバイバル）
+- 芝しごとアプリへのリンク（ポータル、ターフプール、楽RAC農薬ローテ、施肥設計ナビ、病害リスク予報、AI相談室、ピンポイント天気で芝しごと、病害画像診断AI、積算温度追跡マップ、クレームサバイバル）
 - **G&P ロゴ**（`public/logo.png`）とグロウアンドプログレス（https://www.turf-tools.jp/）
 
 ---
@@ -178,7 +178,7 @@ climate-data-fetcher/
 ├── requirements.txt             # Python 依存関係
 ├── tailwind.config.js
 ├── postcss.config.js
-└── package.json                 # v1.1.2
+└── package.json                 # v1.1.3
 ```
 
 > **Note**: 以前存在した `climate-map-app/` サブディレクトリは廃止し、ルートの `src/` に統一済みです。
@@ -319,7 +319,7 @@ npx serve -s build
 | 楽RAC農薬ローテ | https://www.turf-tools.jp/portal/rac/ |
 | 施肥設計ナビ | https://fertilization-design.onrender.com/ |
 | 病害リスク予報 | https://www.turf-tools.jp/portal/risk/ |
-| AI質問箱 | https://turf-advisor.onrender.com/ |
+| AI相談室 | https://www.turf-tools.jp/aihelpdesk/ |
 | ピンポイント天気で芝しごと | https://www.turf-tools.jp/portal/spray/ |
 | 病害画像診断AI | https://www.turf-tools.jp/portal/diagnosis/ |
 | 積算温度追跡マップ | https://turfmap.onrender.com/ |
@@ -343,7 +343,13 @@ Render.com の **Static Site** として公開しています。
 
 ## 変更履歴
 
-### v1.1.2（現行）
+### v1.1.3（現行）
+
+| カテゴリ | 内容 |
+|----------|------|
+| フッター | 「AI質問箱」を「AI相談室」（`https://www.turf-tools.jp/aihelpdesk/`）に変更 |
+
+### v1.1.2
 
 | カテゴリ | 内容 |
 |----------|------|

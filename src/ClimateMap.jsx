@@ -125,7 +125,7 @@ function createZoneLabelIcon(roman, color) {
     iconAnchor: [0, 0],
   });
 }
-const APP_VERSION = '1.1.2';
+const APP_VERSION = '1.1.3';
 const APP_TITLE = '芝しごと・温量指数気候区分マップ';
 
 function darkenHex(hex, amount = 0.55) {
@@ -178,7 +178,7 @@ const SHIBASHIGOTO_APP_LINKS = [
   { label: '楽RAC農薬ローテ', href: 'https://www.turf-tools.jp/portal/rac/' },
   { label: '施肥設計ナビ', href: 'https://fertilization-design.onrender.com/' },
   { label: '病害リスク予報', href: 'https://www.turf-tools.jp/portal/risk/' },
-  { label: 'AI質問箱', href: 'https://turf-advisor.onrender.com/' },
+  { label: 'AI相談室', href: 'https://www.turf-tools.jp/aihelpdesk/' },
   { label: 'ピンポイント天気で芝しごと', href: 'https://www.turf-tools.jp/portal/spray/' },
   { label: '病害画像診断AI', href: 'https://www.turf-tools.jp/portal/diagnosis/' },
   { label: '積算温度追跡マップ', href: 'https://turfmap.onrender.com/' },
