@@ -172,6 +172,14 @@ const BANNER_ITEMS = [
   },
 ];
 
+const GUIDE_LINKS = [
+  {
+    label: '🆕 新しい解説',
+    href: 'https://www.turf-tools.jp/post/%E3%80%8C%E8%8A%9D%E3%81%97%E3%81%94%E3%81%A8%E3%83%BB%E6%B8%A9%E9%87%8F%E6%8C%87%E6%95%B0%E6%B0%97%E5%80%99%E5%8C%BA%E5%88%86%E3%83%9E%E3%83%83%E3%83%97%E3%80%8Dv1-1-0-%E3%82%92%E5%85%AC%E9%96%8B%E3%81%97%E3%81%BE%E3%81%97%E3%81%9F',
+  },
+  { label: '▶ 解説動画', href: 'https://youtu.be/sV-Zecw68_c' },
+];
+
 const SHIBASHIGOTO_APP_LINKS = [
   { label: 'ポータル', href: 'https://www.turf-tools.jp/portal/' },
   { label: 'ターフプール', href: 'https://www.turf-tools.jp/portal/turfpool/' },
@@ -573,6 +581,19 @@ const ClimateMap = () => {
             <p className="text-sm text-gray-600 mt-1">
               v{APP_VERSION} | {climateData?.metadata.region} | {climateData?.metadata.years_range} | 解像度 {climateData?.metadata.resolution}°
             </p>
+            <nav className="mt-1.5 flex flex-wrap items-center justify-center gap-x-3 gap-y-2" aria-label="解説">
+              {GUIDE_LINKS.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center rounded-full border border-[#c7d2fe] bg-white px-2.5 py-[3px] text-[0.82rem] font-semibold text-[#667eea] no-underline transition-colors hover:border-[#667eea] hover:bg-[#667eea] hover:text-white"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
           </div>
         </div>
       </div>
