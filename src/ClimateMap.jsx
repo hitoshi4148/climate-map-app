@@ -125,7 +125,7 @@ function createZoneLabelIcon(roman, color) {
     iconAnchor: [0, 0],
   });
 }
-const APP_VERSION = '1.1.3';
+const APP_VERSION = '1.1.4';
 const APP_TITLE = '芝しごと・温量指数気候区分マップ';
 
 function darkenHex(hex, amount = 0.55) {
@@ -173,6 +173,10 @@ const BANNER_ITEMS = [
 ];
 
 const GUIDE_LINKS = [
+  {
+    label: '公式解説',
+    href: 'https://www.turf-tools.jp/%E8%A7%A3%E8%AA%AC-%E8%8A%9D%E3%81%97%E3%81%94%E3%81%A8-%E6%B8%A9%E9%87%8F%E6%8C%87%E6%95%B0%E6%B0%97%E5%80%99%E5%8C%BA%E5%88%86%E3%83%9E%E3%83%83%E3%83%97',
+  },
   {
     label: '🆕 新しい解説',
     href: 'https://www.turf-tools.jp/post/%E3%80%8C%E8%8A%9D%E3%81%97%E3%81%94%E3%81%A8%E3%83%BB%E6%B8%A9%E9%87%8F%E6%8C%87%E6%95%B0%E6%B0%97%E5%80%99%E5%8C%BA%E5%88%86%E3%83%9E%E3%83%83%E3%83%97%E3%80%8Dv1-1-0-%E3%82%92%E5%85%AC%E9%96%8B%E3%81%97%E3%81%BE%E3%81%97%E3%81%9F',
